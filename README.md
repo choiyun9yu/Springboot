@@ -75,6 +75,18 @@ JVM에서 사용 가능한 언어는 많지만 그중 가장 널리 사용하는
 
         --target https://스프링 부트-프로젝트-생성에-사용할-url
 
+### 빌드 도구 설치
+
+    % brew install maven
+
+    % sdk install gradle
+
+### 프로젝트 실행
+
+    % mvn spring-boot:run
+
+    % ./gradlew bootRun
+
 <br>
 <br>
 <br>
@@ -131,14 +143,154 @@ JVM에서 사용 가능한 언어는 많지만 그중 가장 널리 사용하는
 
 <br>
 
-## 3-2. GET으로 시작하기
 
-### @RestController 개요
 
+## 3-2. GET으로 조회하기
+
+### MVC 패턴
+![img.png](img/img2.png)
+
+- Model: 데이터 담당
+- View: 화면 담당
+- Controller: 비즈니스 로직 담당
+
+### @RestController
+- 스프링에서 서버사이드렌더링할 때 @Controller 어노테이션을 사용
+- @ResponseBody를 클래스나 메서드에 추가해서 JSON이나 XML 같은 데이터 형식으로 반환하도록 지시 가능
+- @RestController 어노테이션은 @Controller와 @ResponseBody를 합친 것   
+REST API 만들 때 사용
+######
+    @RestController
+    class RestApiDemoController {
+    private List<Coffee> coffees = new ArrayList<>();
+    
+        // 생성자를 만들어 객체 생성 시 커피 목록을 채우는 코드 추가
+        public RestApiDemoController() {
+            conffes.addAll(List.of(
+                    new Coffee("Cafe Cereza"),
+                    new Coffee("Cafe Ganador"),
+                    new Coffee("Cafe Lareno"),
+                    new Coffee("Coafe Tres pontas")
+            ));
+        }
+    }
+
+### @RequestMapping
+- RequestMapping 어노테이션의 value로 url을 추가하고, method로 요청 타입을 추가
+- getCoffees() 메서드가 /coffee URL의 GET 요청에만 응답하도록 제한하는 것
+######
+    @RestController
+    class RestApiDemoController {
+    private List<Coffee> coffees = new ArrayList<>();
+    
+        // RequestMapping을 사용한 GET 요청으로 커피 목록 가져오기
+        @RequestMapping(value = "/coffees", method = RequestMethod.GET)
+        // Iterable은 순회가능한 데이터 타입
+        Iterable<Coffee> getCoffees() {
+            return coffees;
+        }
+    }
+
+### @GetMapping
+- @RequsetMapping을 더 간단하게 사용하기
+###### 
+
+    @RestController
+    @RequestMaiing("/")
+    class RestApiDemoController {
+    private List<Coffee> coffees = new ArrayList<>();
+    
+        @GetMapping("/coffes")
+        Iterable<Coffee> getCoffees() {
+            return coffees;
+        }
+    }
+
+### 특정 데이터 조회, get...ById
+- 경로에 적혀있는 {id} 부분은 URL 변수이며, 해당 값은 @PathVariable이 달린 id 매개변수를 통해 getCoffeeById에 전달
+- 일치하는 항목이 있으면 값이 있는 Optional<Coffee>를 반환하고, 없으면 비어있는 Optional<Coffee>를 반환
+######
+    @GetMapping("/coffees/{id}")
+    Optional<Coffee> getCoffeeById(@PathVariable String id) {   
+        for (Coffee c: offees) {
+            if (c.getId().equals(id)) {
+                return Optional.of(c);      // 자료형.of()는 불변하는 컬렉션 객체를 생성하는 메소드
+            }
+        }
+
+        return Optinal.empty();
+    }
 
 <br>
 
-## 3-3. 믿으라, 그러나 검증하라
+## 3-3. POST로 생성하기
+- 마샬링: 직렬화 과정, Java에서는 객체를 직렬화하여 바이트 스트림으로 변환하고 이를 파일로 저장하거나 네트워크를 통해 다른 시스템에 전송할 수 있습니다.
+- 언마샬링: 마샬링된 데이터를 역직렬화 하는 과, 네트워크를 통해 수신한 직렬화된 데이터를 역직렬화하여 원래 객체로 복원할 때 사용됩니다.
+######
+    @PostMapping("/coffees")
+    Coffee PostCoffee(@RequestBody Coffee coffee) {
+        coffees.add(coffee);
+        return coffee;
+    }
+
+<br>
+
+## 3-4. PUT으로 수정하기
+- 특정 식별자로 커피를 검색해서 찾으면 업데이트, 없으면 리소스 생성 
+######
+    @PutMapping("/coffees/{id}")
+    Coffee putCoffee(@PathVariable String id, @RequestBody Coffee coffee) {
+        int coffeeIndex = -1;
+    
+        for (Coffee c: coffees) {
+            if (c.getId().equals(id)) {
+                coffeeIndex = coffees.indexOf(c);
+                coffees.set(coffeeIndex, coffee);
+            }
+        }
+    
+        return (coffeeIndex == -1) ? postCoffee(coffee) : coffee;
+    }
+
+<br>
+
+## 3-5. DELETE로 삭제하기
+- removeIf는 Predicate 값을 받아 목록에 제거할 커피가 존재하면 참을 반환하는 람다
+######
+    @DeleteMapping("/coffees/{id}")
+    void deleteCoffee(@PathVariable String id) {
+        coffees.removeIf(c -> c.getId().equals(id));
+    }
+
+<br>
+
+## 3-6. 상태 코드
+- GET 메서드에는 특정 상태 코드를 지정 X
+- POST, DELETE 메서드에는 상태 코드 사용 권장
+- PUT 메서드에는 응답 시 상태 코드 필수
+######
+    @PutMapping(/{id})
+    ResponseEntity<Coffee> putCoffee(@PathVariable String id,
+                                     @RequestBody Coffee coffee) {
+        int coffeeIndex = -1;
+    
+        for (Coffee c: coffees) {
+            if (c.getId().equals(id)) {
+                coffeeIndex = coffees.indexOf(c);
+                coffees.set(coffeeIndex, coffee);
+            }
+        }
+    
+        return (coffeeIndex == -1)
+                ? new ResoponseEntity<>(postCoffee(coffee), HttpStatus.CREATED) 
+                : new ResponsEntity<>(coffee, HttpStatus.OK);
+    }
+
+<br>
+
+## 3-7. 검증하기
+
+[HTTPie install](https://httpie.io/docs/cli/installation)
 
 <br>
 <br>
