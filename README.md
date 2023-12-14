@@ -100,7 +100,7 @@ JVM에서 사용 가능한 언어는 많지만 그중 가장 널리 사용하는
 - DELETE 삭제
 
 ### 스프링 MVC를 사용한 애플리케이션 만들기
-![img.png](img/img.png)
+![img.png](_img/img.png)
 
 ### 간단한 도메인 만들기
 
@@ -148,7 +148,7 @@ JVM에서 사용 가능한 언어는 많지만 그중 가장 널리 사용하는
 ## 3-2. GET으로 조회하기
 
 ### MVC 패턴
-![img.png](img/img2.png)
+![img.png](_img/img2.png)
 
 - Model: 데이터 담당
 - View: 화면 담당
