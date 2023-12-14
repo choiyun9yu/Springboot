@@ -73,6 +73,7 @@
     % sdk list java                    // 설치할 수 있는 자바 목록 보기
     % sdk install java 11.0.19-amzn    // 리스트로 확인한 것 중 다운받을 버전 넣기
     % sdk use java 11.0.19-amzn        // 사용하기
+    % sdk default java {사용하려는 버전}  // Java 디폴터 버전 설정
     % sdk current java                 // 현재 사용 버전 확인
     % echo $JAVA_HOME                  // 환경변수 자동 설정 확인
 
@@ -118,79 +119,151 @@
 
     % ./gradlew bootRun
 
-
 <br>
 <br>
 <br>
 
 # 2. REST API
-## 2-1. API, HTTP 메서드 스타일
-- POST 생성
-- GET 조회
-- PUT 수정
-- PATCH 수정
-- DELETE 삭제
 
-### 스프링 MVC를 사용한 애플리케이션 만들기
+### 2-1. 스프링 MVC를 사용한 애플리케이션 만들기
 ![img.png](_img/img.png)
 
-### 간단한 도메인 만들기
+![img.png](_img/img2.png)
 
+- Model: 데이터 담당
+- View: 화면 담당
+- Controller: 라우팅, 비즈니스 로직 담당
+
+#### 간단한 도메인 만들기
+
+    package com.gaion.kisadashboardjava;
+
+    import org.springframework.boot.SpringApplication;
+    import org.springframework.boot.autoconfigure.SpringBootApplication;
+    import org.springframework.web.bind.annotation.RestController;
+    import org.springframework.web.bind.annotation.RequestMapping;
+    import org.springframework.web.bind.annotation.GetMapping;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.stereotype.Service;
+    import org.springframework.data.mongodb.core.MongoTemplate;
+    
+    import java.util.List;
+    import java.util.ArrayList;
+    
     @SpringBootApplication
-    public class SburRestDemoApplication {
+    public class Application {
     
         public static void main(String[] args) {
-    
-            SpringApplication.run(SburRestDemoApplication.class, args);
-    
+            SpringApplication.run(Application.class, args);
         }
-    
     }
     
-    class Coffee {
-    private final String id;    // final 선언으로 한 번 할당하면 수정 불가
-    private String name;
+    @RestController
+    class HelloController {
     
-        public Coffee(String id, String name) {
-            this.id = id;
-            this.name = name;
+        @Autowired
+        private AiDroneService aiDroneService;
+    
+        @GetMapping("/")
+        public String Hello()
+        {
+            return "Hello, World!";
         }
     
-        public Coffee(String name) {
-            this(UUID.randomUUID().toString(), name);
+        @GetMapping("/api/realtime")
+        public List<String> realtime() {
+            List<String> distinctDroneIds = aiDroneService.getDistinctDroneIds();
+            return distinctDroneIds;
+        }
+    }
+    
+    @Service
+    class AiDroneService {
+    
+        private final MongoTemplate mongoTemplate;
+    
+        @Autowired
+        public AiDroneService(MongoTemplate mongoTemplate) {
+            this.mongoTemplate = mongoTemplate;
         }
     
-        public String getId() {
-            return id;
-        }
+        public List<String> getDistinctDroneIds() {
+            List<String> distinctDroneIds = mongoTemplate.getCollection("ai_drone")
+                    .distinct("device_id", String.class)
+                    .into(new ArrayList<>());
     
-        public String getName() {
-            return name;
-        }
-    
-        public void setName(String name) {
-            this.name = name;
+            return distinctDroneIds;
         }
     }
 
 <br>
 
+### 빈(Bean)
+스프링 컨테이너에서 관리되는 객체
 
+### @SpringBootApplication
+Spring Boot 애프리케이션의 주요 설정을 지정하는 메타 어노테이션이다. 이 어노테이션은 아래 3가지 어노테이션을 함께 포함하고 있다.
+- **@Configuration**: 클래스가 Bean 구성 클래스임을 나타낸다. 이 이노테이션을 사용하여 클래스 내에서 @Bean 에노테이션을 사용하여 빈을 정의할 수 있다.
 
-## 2-2. GET으로 조회하기
+- **@EnableAutoConfiguration**: 스프링 부트의 자동 구성 기능을 활성화한다. 이 어노테이션을 사용하면 클래스 패스에 있는 의존성을 기반으로 자동으로 빈을 설정하고 설정 파일을 로딩한다.
 
-### MVC 패턴
-![img.png](_img/img2.png)
+- **@ComponentScan**: 스프링이 컴포넌트를 찾아 등록할 패키지를 지정한다. 이 어노테이션을 사용하지 않으면 @SpringBootApplication이 위치한 패키지부터 시작하여 하위 패키지의 컴포넌트만을 스캔한다.
 
-- Model: 데이터 담당
-- View: 화면 담당
-- Controller: 비즈니스 로직 담당
+이 3가지 어노테이션을 함께 사용하면 Spring Boot 애플리케이션을 간단하게 설정할 수 있다. 기본적인 구성, 자동 구성, 컴포넌트 스캔 모두 한 곳에서 처리되므로 애플리케이션의 설정이나 메타데이터를 최소화할 수 있다.
 
 ### @RestController
-- 스프링에서 서버사이드렌더링할 때 @Controller 어노테이션을 사용
-- @ResponseBody를 클래스나 메서드에 추가해서 JSON이나 XML 같은 데이터 형식으로 반환하도록 지시 가능
-- @RestController 어노테이션은 @Controller와 @ResponseBody를 합친 것   
-REST API 만들 때 사용
+스프링 MVC 프레임워크에서 컨트롤러를 정의할 때 사용되는 어노테이션 중 하나이다. 이 어노테이션은 @Controller와 @ResponseBody를 합친 것으로 볼 수 있다.
+
+일반적으로 Spring MVC에서는 @Controller 어노테이션을 사용하여 컨트롤러를 정의하고, 해당 메소드에서 반환되는 값은 View 이름으로 간주되어 View Resolver에 의해 처리된다. 그러나 @RestController를 사용하면 메소드의 반환 값이 View 이름이 아니라 HTTP 응답 본문으로 직접 전송된다.
+
+간단히 말해 @RestController는 JSON 또는 XML 형식의 데이터를 반환하는 컨트롤러를 정의할 때 사용된다. 이는 주로 RESTful 웹 서비스에서 API 엔드포인트를 구현할 때 활용된다.
+
+### @RequestMapping
+스프링 MVC에서 컨트롤러 메서드에 요청한 URL을 매핑하기 위해 사용되는 어노테이션이다. 이 어노테이션을 사용하면 메소드가 어떤 URI에 응답할지를 지정할 수 있다.
+
+@RequestMapping은 클래스 레벨과 메소드 레벨에서 모두 사용될 수 있다. 클래스 레벨에서 사용할 경우 해당 클래스의 모든 메소드에 대한 기본 URI를 설정하고, 메소드 레벨에서 사용할 경우 특정 메소드에 대한 URI를 설정한다.
+
+    @RestController
+    @RequestMapping("/api")
+    public class MyRestController {
+    
+        // 기본 URI: /api/hello
+        @GetMapping("/hello")
+        public String hello() {
+            return "Hello, World!";
+        }
+    
+        // 기본 URI: /api/user
+        @GetMapping("/user")
+        public User getUser() {
+            User user = new User("John Doe", "john@example.com");
+            return user;
+        }
+    
+        // 클래스 레벨에서 /greet이 추가됨
+        @RequestMapping("/greet")
+        public String greet() {
+            return "Greetings!";
+        }
+    }
+
+### @GetMapping / PostMapping / PutMapping / DeleteMapping
+@GetMapping은 스프링 MVC에서 HTTP GET 요청을 처리하는 메소드에 부여되는 어노테이션이다. 주로 컨트롤러 메소드에서 특정 URI의 GET요청을 처리하기 위해 사용된다.
+
+### @Service
+스프링 프레임워크에서 서비스 계층의 구성요소를 나타낸다. 서비스 계층은 주로 비즈니스 로직을 처리하고 데터이 액세스, 트랜잭션 관리 등을 담당하는 부분이다. @Service 어노테이션인 이 서비스 빈을 정의하는 데 사용된다.
+- 컴포넌트 스캔: @Service 어노테이션이 클래스에 지정되면, 해당 클래스는 Spring 컴포넌트 스캔에 의해 자동으로 빈으로 등록된다. 
+- 의존성 주입: @Service 어노테이션이 지정된 클래스의 인스턴스는 다른 Spring 빈과 동일하게 의존성 주입을 받을 수 있다. 이를 통해 해당 서비스는 다른 서비스나 데이터 액세스 객체 등과 협력할 수 있다.
+- 트랜잭션 관리: @Service 어노테이션을 사용하면 스프링의 트랜잭션 관리 서비스를 활용할 수 있다. 메소드에 @Transactional 어노테이션을 추가하여 트랜잭션을 설정할 수 있다.
+
+즉 @Service 어노테이션을 사용하면 Spring에 의해 자동으로 빈으로 등록되며, 다른 컴포넌트에서 이 서비스를 주입받아 사용할 수 있게 된다.
+
+### @Autowired
+객체 간의 의존성을 자동으로 주입할 때 사용한다. 이 어노테이션은 필드, 생성자, 메서드에 적용할 수 있다.
+
+생성자 주입은 보통 권장되는 방식이며, 필드나 메서드 주입보다 더 명확하고 안전한 방법으로 간주된다. 이를 통해 의존성을 놓치는 것을 방지하고 테스트 용이성을 높일 수 있다.
+
+## 2-2. GET으로 조회하기
 ######
     @RestController
     class RestApiDemoController {
@@ -207,9 +280,6 @@ REST API 만들 때 사용
         }
     }
 
-### @RequestMapping
-- RequestMapping 어노테이션의 value로 url을 추가하고, method로 요청 타입을 추가
-- getCoffees() 메서드가 /coffee URL의 GET 요청에만 응답하도록 제한하는 것
 ######
     @RestController
     class RestApiDemoController {
@@ -223,10 +293,7 @@ REST API 만들 때 사용
         }
     }
 
-### @GetMapping
-- @RequsetMapping을 더 간단하게 사용하기
-###### 
-
+######
     @RestController
     @RequestMaiing("/")
     class RestApiDemoController {
