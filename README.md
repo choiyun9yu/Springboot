@@ -36,6 +36,16 @@
         // 다른 필요한 의존성도 추가할 수 있다.
     }
 
+#### Gradle Structure
+       project  
+        ├── gradle  
+        │   └── wrapper  
+        │       ├── gradle-wrapper.jar          // Wrapper 파일이다. 실행 스크립트가 동작하면 wrapper에 맞는 환경을 로컬 캐시에 다운로드 받은 뒤 실제 명령에 해당하는 task를 실행한다.
+        │       └── gradle-wrapper.properties   // Gradle Wrapper 설정 파일  
+        ├── gradlew                             // Unix에서 wrapper 실행 스크립트
+        └── gradlew.bat                         // Wrapper를 빌드할 때 실행할 배치 스크립트
+
+
 ### 선택 기준
 #### 프로젝트 구성
 - Maven: 기본 구성을 사용하는 경우나 간단한 프로젝트에 적합
@@ -45,7 +55,6 @@
 - Gradle: 그루비 또는 코틀린을 사용하므로 이 언어에 익순한 사용자에게 더 적합
 #### 성능 및 확장성
 - 성능 및 확장성이 중요한 경우 Gradle이 더 많은 기능과 유연성을 제공 (그러나 그 유연함 때문에 프로젝트가 예상대로 작동하지 않을 수 있다.)
-
 
 <br>
 
