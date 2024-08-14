@@ -59,7 +59,36 @@
 <br>
 
 ## 1-2. 스프링 이니셜라이져
-## [이니셜라이져](https://start.spring.io)
+### [이니셜라이져](https://start.spring.io)
+- Project: Gradle-Groovy
+- Language: Java
+- ProrjectMetadata
+    - Group: 회사나 조직의 도메인 이름을 역순으로 (ex. com.company)
+    - Artifact: 프로젝트의 아티팩트 ID 의미 (ex. user-service)
+    - Name: 프로젝트 이름 표시 (ex.User Srivce)
+    - Description: 프로젝트에 대한 간단한 설명 (Optional)
+    - Package name: 프로젝트의 기본 패키지 이름으로 보통 Group ID 와 Artifiact ID 를 조합하여 자동으로 생성
+    - Packaging: Jar
+- Dependencies: 필요한 의존성 추가(Spring Web, JPA 등)
+
+#### 의존성 추가
+- build.gradle 파일의 dependencies 블록에 새로운 의존성 추가
+
+            dependencies {
+                implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+            }
+- 의존성 추가 후 프로젝트 재빌드
+
+            gradle build
+- Spring Boot DevTools 사용: 개발 중 자동 재시작을 위해 DevTools 의존성 추가 기능
+  
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-devtools</artifactId>
+                <scope>runtime</scope>
+                <optional>true</optional>
+            </dependency>
+  - 온라인에 원하는 의존성 검색 [Maven Repository](https://mvnrepository.com)
 
 <br>
 
