@@ -64,7 +64,7 @@
 - Language: Java
 - ProrjectMetadata
     - Group: 회사나 조직의 도메인 이름을 역순으로 (ex. com.company)
-    - Artifact: 프로젝트의 아티팩트 ID 의미 (ex. user-service)
+    - Artifact: 프로젝트의 아티팩트 ID 의미 (ex. user_service)
     - Name: 프로젝트 이름 표시 (ex.User Srivce)
     - Description: 프로젝트에 대한 간단한 설명 (Optional)
     - Package name: 프로젝트의 기본 패키지 이름으로 보통 Group ID 와 Artifiact ID 를 조합하여 자동으로 생성
