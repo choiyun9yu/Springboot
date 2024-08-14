@@ -71,25 +71,6 @@
     - Packaging: Jar
 - Dependencies: 필요한 의존성 추가(Spring Web, JPA 등)
 
-#### 의존성 추가
-- build.gradle 파일의 dependencies 블록에 새로운 의존성 추가
-
-            dependencies {
-                implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-            }
-- 의존성 추가 후 프로젝트 재빌드
-
-            gradle build
-- Spring Boot DevTools 사용: 개발 중 자동 재시작을 위해 DevTools 의존성 추가 기능
-  
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-devtools</artifactId>
-                <scope>runtime</scope>
-                <optional>true</optional>
-            </dependency>
-  - 온라인에 원하는 의존성 검색 [Maven Repository](https://mvnrepository.com)
-
 <br>
 
 ## 1-3. 스프링 부트 CLI
@@ -147,6 +128,48 @@
     % mvn spring-boot:run
 
     % ./gradlew bootRun
+
+<br>
+
+## 1-4. build.gradle
+
+### dependencies - 의존성 추가
+- build.gradle 파일의 dependencies 블록에 새로운 의존성 추가
+
+            dependencies {
+                // Spring Boot DevTools 사용: 개발 중 자동 재시작을 위해 DevTools 의존성 추가 가능
+                developmentOnly 'org.springframework.boot:spring-boot-devtools'
+            }
+            
+- 의존성 추가 후 프로젝트 재빌드
+
+            gradle build
+  
+- 온라인에 원하는 의존성 검색 [Maven Repository](https://mvnrepository.com)
+
+### dependencyManagement - 의존성 관리
+- 의존성 버전을 중앙에서 관리할 수 있게 해주는 기능이다.
+- 실제로 의존성을 프로젝트에 추가하지 않고, 버전만 정의한다.
+- 하위 모듈이나 프로젝트에서 의존성을 사용할 때 버전을 명시하지 않아도 된다.
+- 일고나된 버전 관리와 버전 충돌 방지에 도움이 된다.
+
+### maveBom(Bill of Materials)
+- 여러 관련 라이브러리의 버전을 한 번에 관리할 수 있게 해주는 특별한 POM(Project Object Model) 파일이다.
+- imports 블록 내에서 사용되어 특정 기술 스택의 모든 관련 라이브러리 버전을 일괄적으로 가져온다.
+- 특히 Spring Cloud 와 같이 여러 관련 프로젝트가 있는 경우 유용하다.
+####
+    ext {
+    	set('springCloudVersion', "2023.0.0")
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        }
+    }
+- ext: Gradle 의 Extra Properties 확장 기능을 사용한다는 의미이다.  
+  이는 프로젝트 전체에서 사용할 수 있는 사용자 장의 속성을 정의할 수 있게 해준다.
+- set('springCloudVersion', "2023.0.0"): 'springCloudVersion' 이라는 속성을 정의하고 값을 "2023.0.0" 로 설정한다.
 
 <br>
 <br>
