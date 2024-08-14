@@ -69,7 +69,7 @@
     - Description: 프로젝트에 대한 간단한 설명 (Optional)
     - Package name: 프로젝트의 기본 패키지 이름으로 보통 Group ID 와 Artifiact ID 를 조합하여 자동으로 생성
     - Packaging: Jar
-- Dependencies: 필요한 의존성 추가(Spring Web, JPA 등)
+- Dependencies: 필요한 의존성 추가(Spring Boot DevTools, Spring Web, JPA 등)
 
 <br>
 
